@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { Root } from '../../models/root';
 import { RootService } from '../../services/root.service';
+import { DatePipe } from '@angular/common';
+
 
 @Component({
   selector: 'app-root-list',
@@ -11,17 +13,41 @@ import { RootService } from '../../services/root.service';
 })
 export class RootListComponent {
   roots: Root[] = [];
+  lastUpdate: Date = new Date();
+  formattedDate: string = this.lastUpdate.toLocaleString('es-ES', {
+    weekday: 'long',
+    hour: 'numeric',
+    minute: 'numeric',
+    second: 'numeric',
+    hour12: false
+  });
+
 
   constructor(private rootService: RootService) {}
 
   ngOnInit() {
-   this.getList();
+   this.fetchData();
   }
+
+  fetchData(){
+    setTimeout(()=>{
+      this.lastUpdate = new Date();
+      this.getList();
+    
+    },1000);
+  }
+  
+ 
   getList(){
     this.rootService.getRootList()
     .subscribe({
-       next: root => this.roots = root,
-       error: err => console.log(err)
+       next: root => {this.roots = root;
+    },
+       
+       error: err =>{
+        console.log(err);
+       }
+
     });
   }
 
