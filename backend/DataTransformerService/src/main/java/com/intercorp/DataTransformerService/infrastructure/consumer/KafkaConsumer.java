@@ -25,7 +25,7 @@ public class KafkaConsumer {
         try {
             String message = record.value();
             Root root = objectMapper.readValue(message, Root.class);
-            log.info("Consumed message -> {}", root.person());
+            log.info("Consumed message -> {}", root);
             kafkaJsonProducer.sendJsonMessage("topic2-reto", RootMapper.toRoot(root));
 
         } catch (Exception e) {
