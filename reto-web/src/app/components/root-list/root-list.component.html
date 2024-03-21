@@ -1,0 +1,29 @@
+<div class="container">
+  <div class="card">
+    <div class="card-body">
+      <h5 class="card-title">List of roots</h5>
+      <ul class="list-group">
+        <div class="row">
+            <div class="col-md-2 fw-bold">Name</div>
+            <div class="col-md-2 fw-bold">Last Name</div>
+            <div class="col-md-3 fw-bold">Country</div>
+            <div class="col-md-3 fw-bold">City</div>
+            <div class="col-md-2 fw-bold">Age</div>
+            
+        </div>
+
+        @for (item of roots; track $index) {
+        <div class="list-group-item">
+          <div class="row">
+            <div class="col-md-2">{{ item.person.firstname }}</div>
+            <div class="col-md-2">{{ item.person.lastname }}</div>
+            <div class="col-md-3">{{ item.person.country }}</div>
+            <div class="col-md-3">{{ item.person.city }}</div>
+            <div class="col-md-2">{{ item.person.age }}</div>
+          </div>
+        </div>
+        }
+      </ul>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: "DataStorageService"
+  datasource:
+    url: jdbc:postgresql://localhost:5432/reto
+    username: postgres
+    password: admin
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    hibernate:
+      ddl-auto: update
+  kafka:
+    consumer:
+      bootstrap-servers: "localhost:9092"
+      group-id: "data-storage-service"
+      auto-offset-reset: "earliest"
+      key-deserializer: "org.apache.kafka.common.serialization.StringDeserializer"
+      value-deserializer: "org.apache.kafka.common.serialization.StringDeserializer"
+      properties:
+        spring.json.trusted.packages: "*"
+
+
+server:
+  port: 8081
