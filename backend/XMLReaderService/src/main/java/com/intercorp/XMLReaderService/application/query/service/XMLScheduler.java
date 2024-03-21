@@ -23,42 +23,42 @@ import java.util.stream.Stream;
 public class XMLScheduler {
 
     private final KafkaJsonProducer kafkaJsonProducer;
+    private int processedFiles = 0;
     public XMLScheduler(KafkaJsonProducer kafkaJsonProducer) {
         this.kafkaJsonProducer = kafkaJsonProducer;
     }
-    @Scheduled(fixedRate = 180000) // 3 minutes in milliseconds
+
+    @Scheduled(fixedRate = 180000)
     public void processXMLFiles() {
         try {
             Resource resource = new ClassPathResource("XML-Example");
             File folder = resource.getFile();
             if (folder.exists() && folder.isDirectory()) {
                 File[] listOfFiles = folder.listFiles();
-
                 Stream.of(Objects.requireNonNull(listOfFiles))
                         .filter(file -> file.isFile() && file.getName().matches("myXMLFile\\d+\\.xml"))
+                        .skip(processedFiles)
                         .limit(10)
-                        .forEach(file ->{
-                            if (!VerifiedXML.isXMLWellFormed(file.getPath())) {
-                                VerifiedXML.correctXML(file.getPath());
-                            }
-                            try {
-                                InputStream inputStream = new FileInputStream(file);
-                                XmlMapper xmlMapper = new XmlMapper();
-                                Root root = xmlMapper.readValue(inputStream, Root.class);
-
-                                log.info("Sending message to Kafka topic: {}", root);
-                                kafkaJsonProducer.sendMessage(root);
-                            } catch (JsonParseException e) {
-                                log.error("Error parsing XML file {}: {}", file.getName(), e.getMessage());
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        });
+                        .forEach(this::processFile);
+                processedFiles += 10;
             } else {
                 log.error("Directory does not exist: {}", folder.getAbsolutePath());
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    private void processFile(File file) {
+        if (!VerifiedXML.isXMLWellFormed(file.getPath())) {
+            VerifiedXML.correctXML(file.getPath());
+        }
+        try (FileInputStream inputStream = new FileInputStream(file)) {
+            Root root = new XmlMapper().readValue(inputStream, Root.class);
+            log.info("Sending message to Kafka topic: {}", root);
+            kafkaJsonProducer.sendMessage(root);
+        } catch (Exception e) {
+            log.error("Error processing XML file {}: {}", file.getName(), e.getMessage());
         }
     }
 

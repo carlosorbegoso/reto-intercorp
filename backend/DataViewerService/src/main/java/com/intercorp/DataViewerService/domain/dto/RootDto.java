@@ -18,4 +18,7 @@ public record RootDto(
 ) {
 
 
+    public RootDto(RootDto rootDto) {
+        this(rootDto.id(), rootDto.person(), rootDto.random(), rootDto.random_float(), rootDto.bool(), rootDto.date(), rootDto.regEx(), rootDto.enumValue(), rootDto.elt(), rootDto.creationDate());
+    }
 }

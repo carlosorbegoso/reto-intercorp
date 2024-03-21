@@ -2,6 +2,7 @@ package com.intercorp.DataViewerService.application.query.service;
 
 
 import com.intercorp.DataViewerService.domain.dto.RootDto;
+import com.intercorp.DataViewerService.infrastructure.mappers.RootDtoMapper;
 import com.intercorp.DataViewerService.infrastructure.query.repository.RootQueryRepository;
 import com.intercorp.DataViewerService.infrastructure.dataaccess.RootEntity;
 import org.springframework.stereotype.Service;
@@ -19,9 +20,9 @@ public class RootQueryService {
 
     public void listRoot(RootDto rootDto) {
         RootEntity rootDtoFormBD = rootCommandRepository.findByRootId(rootDto.id());
-        if(!rootDto.equals(rootDtoFormBD)) {
-            rootDtoList.add(rootDto);
-        }
+
+        rootDtoList.add(
+                new RootDto(RootDtoMapper.toRootDto(rootDtoFormBD)));
     }
     public List<RootDto> listRoot(){
         return rootDtoList;
