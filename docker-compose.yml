@@ -8,6 +8,8 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8081:8081"
+    links:
+      - kafka-broker-1
     environment:
       - DATABASE_URL=jdbc:postgresql://postgres:5432/reto
       - DATABASE_USER=postgres
@@ -26,6 +28,8 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8082:8082"
+    links:
+        - kafka-broker-1
     environment:
       - KAFKA_BOOTSTRAP_SERVERS=kafka-broker-1:9092
     networks:
@@ -39,6 +43,8 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8084:8084"
+    links:
+        - kafka-broker-1
     environment:
       - DATABASE_URL=jdbc:postgresql://postgres:5432/reto
       - DATABASE_USER=postgres
@@ -57,7 +63,8 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8085:8085"
-
+    links:
+      - kafka-broker-1
     environment:
         - KAFKA_BOOTSTRAP_SERVERS=kafka-broker-1:9092
     networks:
@@ -99,10 +106,14 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_JMX_PORT: 9101
+      KAFKA_JMX_HOSTNAME: localhost
+
     ports:
       - "9092:9092"
     networks:
       - spring-cloud-network
+
 
   postgres:
     container_name: postgres
