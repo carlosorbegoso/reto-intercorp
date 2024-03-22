@@ -9,6 +9,8 @@ services:
       - "8081:8081"
     depends_on:
       - postgres
+    networks:
+      - spring-cloud-network
 
   postgres:
     container_name: postgres
@@ -21,3 +23,9 @@ services:
       - ./postgres-data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    networks:
+      - spring-cloud-network
+
+networks:
+    spring-cloud-network:
+          driver: bridge

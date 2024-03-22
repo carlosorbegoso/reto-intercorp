@@ -2,7 +2,7 @@ spring:
   application:
     name: "DataStorageService"
   datasource:
-    url: jdbc:postgresql://localhost:5432/reto
+    url: jdbc:postgresql://postgres:5432/reto
     username: postgres
     password: admin
   jpa:
