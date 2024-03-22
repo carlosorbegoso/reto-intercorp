@@ -2,18 +2,15 @@ spring:
   application:
     name: "DataStorageService"
   datasource:
-    url: jdbc:postgresql://postgres:5432/reto
-    username: postgres
-    password: admin
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/reto}
+    username: ${DATABASE_USERNAME:postgres}
+    password: ${DATABASE_PASSWORD:admin}
   jpa:
-    properties:
-      hibernate:
-        format_sql: true
     hibernate:
       ddl-auto: update
   kafka:
     consumer:
-      bootstrap-servers: "localhost:9092"
+      bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
       group-id: "data-storage-service"
       auto-offset-reset: "earliest"
       key-deserializer: "org.apache.kafka.common.serialization.StringDeserializer"
