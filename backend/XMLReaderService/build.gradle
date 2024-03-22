@@ -16,6 +16,19 @@ configurations {
 		extendsFrom annotationProcessor
 	}
 }
+sourceSets {
+	main{
+		resources {
+			srcDirs 'src/main/resources', 'src/main/resources/templates'
+			include('**/*.xml')
+
+		}
+
+	}
+}
+processResources {
+	duplicatesStrategy = DuplicatesStrategy.INCLUDE
+}
 
 repositories {
 	mavenCentral()

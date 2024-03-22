@@ -9,14 +9,14 @@ import com.intercorp.XMLReaderService.infrastructure.utils.VerifiedXML;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import java.io.File;
-import java.io.FileInputStream;
+
 import java.io.InputStream;
 import java.util.Objects;
 import java.util.stream.Stream;
-
 
 @Component
 @Slf4j
@@ -24,6 +24,7 @@ public class XMLScheduler {
 
     private final KafkaJsonProducer kafkaJsonProducer;
     private int processedFiles = 0;
+
     public XMLScheduler(KafkaJsonProducer kafkaJsonProducer) {
         this.kafkaJsonProducer = kafkaJsonProducer;
     }
@@ -31,36 +32,26 @@ public class XMLScheduler {
     @Scheduled(fixedRate = 180000)
     public void processXMLFiles() {
         try {
-            Resource resource = new ClassPathResource("XML-Example");
-            File folder = resource.getFile();
-            if (folder.exists() && folder.isDirectory()) {
-                File[] listOfFiles = folder.listFiles();
-                Stream.of(Objects.requireNonNull(listOfFiles))
-                        .filter(file -> file.isFile() && file.getName().matches("myXMLFile\\d+\\.xml"))
-                        .skip(processedFiles)
-                        .limit(10)
-                        .forEach(this::processFile);
-                processedFiles += 10;
-            } else {
-                log.error("Directory does not exist: {}", folder.getAbsolutePath());
-            }
+            ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
+            Resource[] resources = resolver.getResources("classpath:XML-Example/*.xml");
+            Stream.of(resources)
+                    .filter(resource -> resource.getFilename() != null && resource.getFilename().matches("myXMLFile\\d+\\.xml"))
+                    .skip(processedFiles)
+                    .limit(10)
+                    .forEach(this::processResource);
+            processedFiles += 10;
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private void processFile(File file) {
-        if (!VerifiedXML.isXMLWellFormed(file.getPath())) {
-            VerifiedXML.correctXML(file.getPath());
-        }
-        try (FileInputStream inputStream = new FileInputStream(file)) {
+    private void processResource(Resource resource) {
+        try (InputStream inputStream = resource.getInputStream()) {
             Root root = new XmlMapper().readValue(inputStream, Root.class);
             log.info("Sending message to Kafka topic: {}", root);
             kafkaJsonProducer.sendMessage(root);
         } catch (Exception e) {
-            log.error("Error processing XML file {}: {}", file.getName(), e.getMessage());
+            log.error("Error processing XML resource: {}", e.getMessage());
         }
     }
-
-
 }

@@ -12,7 +12,7 @@ export class RootService {
   constructor(private http: HttpClient) {}
 
   getRootList(): Observable<Root[]>{
-    return this.http.get<Root[]>(this.API_URL)
+    return this.http.get<Root[]>(this.API_URL + '/root/list')
     .pipe(res => res)
   }
 }
